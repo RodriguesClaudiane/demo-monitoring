@@ -1,0 +1,34 @@
+groups:
+  - name: servidor
+    rules:
+      - alert: ServidorFora
+        expr: up{job="node"} == 0
+        for: 30s
+        labels:
+          severidade: critica
+        annotations:
+          resumo: "Servidor {{ $labels.instance }} não responde"
+
+      - alert: CPUAlta
+        expr: 100 - (avg by (instance) (rate(node_cpu_seconds_total{mode="idle"}[1m])) * 100) > 80
+        for: 30s
+        labels:
+          severidade: aviso
+        annotations:
+          resumo: "CPU acima de 80% em {{ $labels.instance }}"
+
+      - alert: MemoriaAlta
+        expr: (1 - node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes) * 100 > 85
+        for: 1m
+        labels:
+          severidade: aviso
+        annotations:
+          resumo: "Memória acima de 85% em {{ $labels.instance }}"
+
+      - alert: DiscoQuaseCheio
+        expr: (1 - node_filesystem_avail_bytes{fstype!~"tmpfs|overlay"} / node_filesystem_size_bytes{fstype!~"tmpfs|overlay"}) * 100 > 90
+        for: 1m
+        labels:
+          severidade: critica
+        annotations:
+          resumo: "Disco {{ $labels.mountpoint }} acima de 90%"

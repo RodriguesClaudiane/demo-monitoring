@@ -1,0 +1,19 @@
+global:
+  scrape_interval: 15s      # de quanto em quanto tempo coleta métricas
+  evaluation_interval: 15s  # de quanto em quanto tempo avalia regras de alerta
+
+rule_files:
+  - /etc/prometheus/alertas.yml
+
+scrape_configs:
+  # O próprio Prometheus
+  - job_name: prometheus
+    static_configs:
+      - targets: ["localhost:9090"]
+
+  # Métricas do servidor (CPU, memória, disco, rede)
+  - job_name: node
+    static_configs:
+      - targets: ["node-exporter:9100"]
+        labels:
+          servidor: "servidor-demo"
