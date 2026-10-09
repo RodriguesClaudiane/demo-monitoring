@@ -16,13 +16,18 @@ services:
   node-exporter:
     image: prom/node-exporter:latest
     container_name: node-exporter
-    pid: host
+    # Sem pid: host e sem montar o /proc do host: no WSL/Docker Desktop o
+    # mountinfo do host tem entradas 9p com espaços que quebram o coletor de
+    # filesystem. O /proc do próprio container já expõe CPU/memória do host.
     volumes:
-      - /proc:/host/proc:ro
       - /sys:/host/sys:ro
-      - /:/rootfs:ro
+      - type: bind
+        source: /
+        target: /rootfs
+        read_only: true
+        bind:
+          recursive: disabled
     command:
-      - --path.procfs=/host/proc
       - --path.sysfs=/host/sys
       - --path.rootfs=/rootfs
     ports:
